@@ -43,6 +43,15 @@ const App = () => {
         fetchData();
     }
 
+    const handleDeleteItemClick = (id) => {
+        ipcRenderer.send('mutate', {
+            url: url,
+            sql: `DELETE FROM list WHERE id=${id}`
+        });
+        // refresh the data
+        fetchData();
+    }
+
     const handleAddItemClick = () => {
         ipcRenderer.send('mutate', {
             url: url,
@@ -59,6 +68,15 @@ const App = () => {
         setUrl(url);
     }
 
+    const renderItem = (value) => {
+        return (
+            <li key={value.id}>
+                <button onClick={() => handleDeleteItemClick(value.id)}>X</button>
+                <input type='checkbox' onClick={() => handleItemClick(value.id)} />
+                {value.label}
+            </li>
+        )
+    }
     return (
         <>
             <input type="file" onChange={handleFileChange} />
@@ -66,9 +84,9 @@ const App = () => {
             <input type="text" value={addLabel} onChange={(e) => setAddLabel(e.target.value)} />
             <button onClick={handleAddItemClick} disabled={addLabel.trim() === ''}>Add</button>
             <h2>Todo</h2>
-            <ul>{todo.map(value => <li key={value.id}><input type='checkbox' onClick={() => handleItemClick(value.id)} /> {value.label}</li>)}</ul>
+            <ul>{todo.map(renderItem)}</ul>
             <h2>Completed</h2>
-            <ul>{completed.map(value => <li key={value.id}><input type='checkbox' onClick={() => handleItemClick(value.id)} /> {value.label}</li>)}</ul>
+            <ul>{completed.map(renderItem)}</ul>
         </>
     )
 };
